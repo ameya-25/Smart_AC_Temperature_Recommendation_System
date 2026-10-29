@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart AC Temperature Recommendation System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="icon-circle">❄️</div>
+      <h1>Smart AC Temperature Recommendation System</h1>
+      <p class="subtitle">IoT-based automated room comfort advisor</p>
+    </header>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-label">ESP32 Status:</span>
+      <span id="status-badge" class="badge badge-waiting">Connecting...</span>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid">
+      <!-- Current Room Temperature Card -->
+      <div class="card room-card">
+        <div class="card-header">
+          <span class="card-icon">🌡️</span>
+          <h3>Room Temperature</h3>
+        </div>
+        <div class="card-value">
+          <span id="room-temp">--</span><span class="unit">°C</span>
+        </div>
+        <p class="card-subtext">Measured by DHT11 Sensor</p>
+      </div>
+
+      <!-- Recommended AC Temperature Card (Prominent) -->
+      <div class="card ac-card highlight">
+        <div class="card-header">
+          <span class="card-icon">❄️</span>
+          <h3>Recommended AC Temperature</h3>
+        </div>
+        <div class="card-value highlight-value">
+          <span id="ac-temp">--</span><span class="unit">°C</span>
+        </div>
+        <p class="card-subtext" id="ac-advice">Calculated by Recommendation Engine</p>
+      </div>
+    </main>
+
+    <!-- Rule Explanation Card (Helpful for College Presentation) -->
+    <section class="rules-box">
+      <h4>Recommendation Logic:</h4>
+      <ul>
+        <li>Room Temp &ge; 35°C &rarr; Recommend AC at <strong>22°C</strong></li>
+        <li>Room Temp 30°C to 34.9°C &rarr; Recommend AC at <strong>24°C</strong></li>
+        <li>Room Temp 27°C to 29.9°C &rarr; Recommend AC at <strong>25°C</strong></li>
+        <li>Room Temp &lt; 27°C &rarr; Recommend AC at <strong>26°C</strong></li>
+      </ul>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Last Updated: <strong id="last-updated">Waiting for data...</strong></span>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
