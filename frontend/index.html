@@ -46,13 +46,18 @@
 
     <!-- College Demo Rule Explanation Box -->
     <section class="rules-box">
-      <h4>Recommendation Logic:</h4>
-      <ul>
-        <li>Room Temp &ge; 35°C &rarr; Recommend AC at <strong>22°C</strong> (High Cool)</li>
-        <li>Room Temp 30°C to 34.9°C &rarr; Recommend AC at <strong>24°C</strong> (Moderate)</li>
-        <li>Room Temp 27°C to 29.9°C &rarr; Recommend AC at <strong>25°C</strong> (Comfort)</li>
-        <li>Room Temp &lt; 27°C &rarr; Recommend AC at <strong>26°C</strong> (Energy Saver)</li>
-      </ul>
+      <h4>Dual-Parameter Recommendation Logic (Temperature + Humidity):</h4>
+      <div class="rules-content">
+        <ul>
+          <li>Room Temp &ge; 35°C &rarr; Base AC at <strong>22°C</strong> (High Cool)</li>
+          <li>Room Temp 30°C to 34.9°C &rarr; Base AC at <strong>24°C</strong> (Moderate)</li>
+          <li>Room Temp 27°C to 29.9°C &rarr; Base AC at <strong>25°C</strong> (Comfort)</li>
+          <li>Room Temp &lt; 27°C &rarr; Base AC at <strong>26°C</strong> (Energy Saver)</li>
+        </ul>
+        <div class="humidity-rule-pill">
+          💡 <strong>Humidity Offset:</strong> If <strong>Humidity &ge; 60% RH</strong> (muggy air impairs sweat evaporation), the system automatically lowers the recommended AC temperature by <strong>1°C</strong> (min 21°C) to enhance comfort and dehumidification.
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->

@@ -42,20 +42,37 @@ let rooms = [
   }
 ];
 
-// Helper: Calculate AC recommendation based on project rules
-function getRecommendedAcTemp(roomTemp) {
+// -------------------------------------------------------------
+// Threshold-Based Recommendation Logic with Humidity Consideration
+// -------------------------------------------------------------
+function getRecommendedAcTemp(roomTemp, humidity) {
   if (roomTemp === null || roomTemp === undefined || isNaN(roomTemp)) {
     return null;
   }
+
+  // 1. Baseline AC Recommendation based on room temperature
+  let baseAcTemp;
   if (roomTemp >= 35) {
-    return 22; // Very hot -> Cool setting
+    baseAcTemp = 22; // Very hot -> Cool setting
   } else if (roomTemp >= 30) {
-    return 24; // Hot -> Moderate cool setting
+    baseAcTemp = 24; // Hot -> Moderate cool setting
   } else if (roomTemp >= 27) {
-    return 25; // Warm -> Standard comfortable setting
+    baseAcTemp = 25; // Warm -> Standard comfortable setting
   } else {
-    return 26; // Mild/Cool -> Energy-saving setting
+    baseAcTemp = 26; // Mild/Cool -> Energy-saving setting
   }
+
+  // 2. Humidity Adjustment:
+  // When relative humidity is high (>= 60% RH), natural sweat evaporation slows down,
+  // making the air feel muggier and hotter (Heat Index effect).
+  // In high humidity, lower AC by 1°C to enhance cooling and dehumidification.
+  if (humidity !== null && humidity !== undefined && !isNaN(humidity)) {
+    if (humidity >= 60) {
+      return Math.max(21, baseAcTemp - 1); // Drop by 1°C, minimum bound 21°C
+    }
+  }
+
+  return baseAcTemp;
 }
 
 // -------------------------------------------------------------
@@ -73,10 +90,13 @@ app.post('/api/temperature', (req, res) => {
   }
 
   const roomTemp = parseFloat(temperature);
-  const recommendedAc = getRecommendedAcTemp(roomTemp);
   const humValue = (humidity !== undefined && humidity !== null && !isNaN(humidity))
     ? parseFloat(humidity)
-    : 52; // Default realistic indoor humidity if sensor only sent temp
+    : null;
+
+  // Calculate recommendation using both room temperature and actual humidity
+  const recommendedAc = getRecommendedAcTemp(roomTemp, humValue);
+
   const now = new Date();
   const timeString = now.toLocaleTimeString();
 
@@ -99,7 +119,7 @@ app.post('/api/temperature', (req, res) => {
     primaryRoom.isConnected = true;
   }
 
-  console.log(`[ESP32 UPDATE] Primary Room Temp: ${roomTemp}°C | AC: ${recommendedAc}°C | Hum: ${humValue}% at ${timeString}`);
+  console.log(`[ESP32 UPDATE] Primary Room Temp: ${roomTemp}°C | AC: ${recommendedAc}°C | Hum: ${humValue !== null ? humValue + '%' : 'N/A'} at ${timeString}`);
 
   return res.status(200).json({
     message: 'Temperature received successfully',
@@ -163,7 +183,7 @@ app.get('/api/rooms', (req, res) => {
     const drift = Math.sin((now / 8000) + (room.seed || 0)) * 0.4;
     const currentTemp = Number((room.baseTemperature + drift).toFixed(1));
     const currentHum = Math.round(room.baseHumidity + Math.cos((now / 10000) + (room.seed || 0)) * 2);
-    const recAc = getRecommendedAcTemp(currentTemp);
+    const recAc = getRecommendedAcTemp(currentTemp, currentHum);
 
     return {
       id: room.id,
@@ -232,13 +252,13 @@ app.post('/api/rooms', (req, res) => {
     seed: Math.random() * 10,
     temperature: randomBaseTemp,
     humidity: randomBaseHum,
-    recommendedAcTemperature: getRecommendedAcTemp(randomBaseTemp),
+    recommendedAcTemperature: getRecommendedAcTemp(randomBaseTemp, randomBaseHum),
     lastUpdated: new Date().toLocaleTimeString(),
     isConnected: true
   };
 
   rooms.push(newRoom);
-  console.log(`[ROOM CREATED] ${newRoom.name} added as Simulated Room (Initial Temp: ${randomBaseTemp}°C)`);
+  console.log(`[ROOM CREATED] ${newRoom.name} added as Simulated Room (Initial Temp: ${randomBaseTemp}°C, Hum: ${randomBaseHum}%)`);
 
   return res.status(201).json({
     message: 'Room created successfully',

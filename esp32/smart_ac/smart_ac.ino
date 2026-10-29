@@ -56,18 +56,21 @@ void loop() {
   if ((millis() - lastTime) > timerDelay) {
     lastTime = millis();
 
-    // Read room temperature from DHT11
+    // Read room temperature and humidity from DHT11
     float temperature = dht.readTemperature();
+    float humidity = dht.readHumidity();
 
     // Check if sensor reading failed
-    if (isnan(temperature)) {
+    if (isnan(temperature) || isnan(humidity)) {
       Serial.println("[ERROR] Failed to read from DHT11 sensor. Skipping cycle.");
       return;
     }
 
-    Serial.print("\n[SENSOR] Current Room Temperature: ");
+    Serial.print("\n[SENSOR] Room Temp: ");
     Serial.print(temperature);
-    Serial.println(" °C");
+    Serial.print(" °C | Humidity: ");
+    Serial.print(humidity);
+    Serial.println(" %");
 
     // Only send if Wi-Fi is still connected
     if (WiFi.status() == WL_CONNECTED) {
@@ -79,8 +82,8 @@ void loop() {
       // Specify JSON content header
       http.addHeader("Content-Type", "application/json");
 
-      // Construct JSON payload: {"temperature": 28.5}
-      String jsonPayload = "{\"temperature\":" + String(temperature, 1) + "}";
+      // Construct JSON payload with both temperature and humidity
+      String jsonPayload = "{\"temperature\":" + String(temperature, 1) + ",\"humidity\":" + String(humidity, 1) + "}";
 
       Serial.print("[HTTP] Sending POST to: ");
       Serial.println(serverUrl);

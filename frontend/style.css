@@ -383,6 +383,17 @@ body {
   font-weight: 600;
 }
 
+.humidity-rule-pill {
+  margin-top: 10px;
+  background-color: #e0f2fe;
+  border-left: 3px solid #0284c7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #0369a1;
+  line-height: 1.4;
+}
+
 .rules-box ul {
   list-style: none;
   font-size: 0.82rem;

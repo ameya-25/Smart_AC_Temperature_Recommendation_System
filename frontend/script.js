@@ -21,9 +21,12 @@ const submitCreateBtn = document.getElementById('submit-create-btn');
 // Local cache of current rooms (used for frontend duplicate check)
 let currentRooms = [];
 
-// Helper: Get AC comfort advice text
-function getAdviceText(acTemp) {
+// Helper: Get AC comfort advice text factoring in humidity
+function getAdviceText(acTemp, humidity) {
   if (!acTemp) return "Waiting for temperature reading";
+  if (humidity && humidity >= 60) {
+    return "High humidity detected • Extra cooling & dehumidification active";
+  }
   if (acTemp <= 22) return "High heat • Maximum cooling recommended";
   if (acTemp <= 24) return "Warm room • Balanced comfort cooling";
   return "Mild room • Energy-saving cooling";
@@ -88,16 +91,16 @@ function renderRoomCards(rooms) {
   roomsGrid.innerHTML = rooms.map(room => {
     const isLive = room.dataType === 'Live Data';
     const tempDisplay = (room.temperature !== null && room.temperature !== undefined)
-      ? Number(room.temperature).toFixed(1)
-      : '--';
+      ? `${Number(room.temperature).toFixed(1)}<span class="reading-unit">°C</span>`
+      : `--`;
     const humDisplay = (room.humidity !== null && room.humidity !== undefined)
-      ? Math.round(room.humidity)
-      : '--';
+      ? `${Math.round(room.humidity)}<span class="reading-unit">%</span>`
+      : `--`;
     const acDisplay = (room.recommendedAcTemperature !== null && room.recommendedAcTemperature !== undefined)
       ? `${room.recommendedAcTemperature}`
       : '--';
 
-    const advice = getAdviceText(room.recommendedAcTemperature);
+    const advice = getAdviceText(room.recommendedAcTemperature, room.humidity);
 
     return `
       <div class="room-card-box ${room.isPrimary ? 'primary-room' : ''}" data-room-id="${room.id}">
@@ -122,11 +125,11 @@ function renderRoomCards(rooms) {
         <div class="room-readings">
           <div class="reading-item">
             <span class="reading-label">Room Temp</span>
-            <div class="reading-val">${tempDisplay}<span class="reading-unit">°C</span></div>
+            <div class="reading-val">${tempDisplay}</div>
           </div>
           <div class="reading-item">
             <span class="reading-label">Humidity</span>
-            <div class="reading-val">${humDisplay}<span class="reading-unit">%</span></div>
+            <div class="reading-val">${humDisplay}</div>
           </div>
         </div>
 
