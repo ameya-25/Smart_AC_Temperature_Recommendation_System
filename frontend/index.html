@@ -12,60 +12,90 @@
     <header class="header">
       <div class="icon-circle">❄️</div>
       <h1>Smart AC Temperature Recommendation System</h1>
-      <p class="subtitle">IoT-based automated room comfort advisor</p>
+      <p class="subtitle">Multi-Room IoT & Simulated Climate Comfort Advisor</p>
     </header>
 
-    <!-- Status Bar -->
+    <!-- Global ESP32 Status Bar -->
     <div class="status-bar">
-      <span class="status-label">ESP32 Status:</span>
-      <span id="status-badge" class="badge badge-waiting">Connecting...</span>
+      <span class="status-label">ESP32 Hardware Sensor:</span>
+      <span id="esp32-status-badge" class="badge badge-waiting">Connecting...</span>
     </div>
 
-    <!-- Main Dashboard Grid -->
-    <main class="dashboard-grid">
-      <!-- Current Room Temperature Card -->
-      <div class="card room-card">
-        <div class="card-header">
-          <span class="card-icon">🌡️</span>
-          <h3>Room Temperature</h3>
-        </div>
-        <div class="card-value">
-          <span id="room-temp">--</span><span class="unit">°C</span>
-        </div>
-        <p class="card-subtext">Measured by DHT11 Sensor</p>
+    <!-- Section Bar with '+ Create Room' Button -->
+    <div class="section-bar">
+      <div class="section-title-wrap">
+        <h2>Monitored Rooms</h2>
+        <span id="rooms-count-badge" class="count-pill">1 Room</span>
       </div>
+      <button id="open-create-modal-btn" class="btn btn-primary">
+        <span class="btn-icon">➕</span> Create Room
+      </button>
+    </div>
 
-      <!-- Recommended AC Temperature Card (Prominent) -->
-      <div class="card ac-card highlight">
-        <div class="card-header">
-          <span class="card-icon">❄️</span>
-          <h3>Recommended AC Temperature</h3>
-        </div>
-        <div class="card-value highlight-value">
-          <span id="ac-temp">--</span><span class="unit">°C</span>
-        </div>
-        <p class="card-subtext" id="ac-advice">Calculated by Recommendation Engine</p>
+    <!-- Error / Alert Banner -->
+    <div id="error-banner" class="alert-banner" style="display: none;"></div>
+
+    <!-- Dynamic Room Cards Grid -->
+    <main id="rooms-grid" class="rooms-grid">
+      <!-- Loading State initially -->
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading rooms data...</p>
       </div>
     </main>
 
-    <!-- Rule Explanation Card (Helpful for College Presentation) -->
+    <!-- College Demo Rule Explanation Box -->
     <section class="rules-box">
       <h4>Recommendation Logic:</h4>
       <ul>
-        <li>Room Temp &ge; 35°C &rarr; Recommend AC at <strong>22°C</strong></li>
-        <li>Room Temp 30°C to 34.9°C &rarr; Recommend AC at <strong>24°C</strong></li>
-        <li>Room Temp 27°C to 29.9°C &rarr; Recommend AC at <strong>25°C</strong></li>
-        <li>Room Temp &lt; 27°C &rarr; Recommend AC at <strong>26°C</strong></li>
+        <li>Room Temp &ge; 35°C &rarr; Recommend AC at <strong>22°C</strong> (High Cool)</li>
+        <li>Room Temp 30°C to 34.9°C &rarr; Recommend AC at <strong>24°C</strong> (Moderate)</li>
+        <li>Room Temp 27°C to 29.9°C &rarr; Recommend AC at <strong>25°C</strong> (Comfort)</li>
+        <li>Room Temp &lt; 27°C &rarr; Recommend AC at <strong>26°C</strong> (Energy Saver)</li>
       </ul>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-      <span>Last Updated: <strong id="last-updated">Waiting for data...</strong></span>
+      <span>Auto-refreshing every 3 seconds &bull; <strong id="global-sync-time">Syncing...</strong></span>
     </footer>
+  </div>
+
+  <!-- Create Room Modal Dialog -->
+  <div id="room-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Room</h3>
+        <button id="close-modal-btn" class="btn-close" title="Close">&times;</button>
+      </div>
+
+      <form id="create-room-form">
+        <div class="form-group">
+          <label for="room-name-input">Room Name</label>
+          <input
+            type="text"
+            id="room-name-input"
+            placeholder="e.g. Master Bedroom, Study Room, Guest Room"
+            maxlength="30"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="form-hint">
+          <strong>Notice:</strong> Physical ESP32 + DHT11 hardware is mapped to the primary <em>Living Room</em>. Newly added rooms will use realistic <strong>Simulated Data</strong> for multi-zone demonstration.
+        </div>
+
+        <div id="modal-error-msg" class="modal-error" style="display: none;"></div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancel-modal-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="submit-create-btn" class="btn btn-primary">Add Room</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
